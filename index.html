@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Gallery</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #a154a6;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            width: 200px;
+            background: rgb(82, 113, 57);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        .card button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .card button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dog Gallery</h1>
+    <div class="container" id="dogContainer"></div>
+    
+    <script>
+        const apiKey = "live_IL8bwiPKnP3KjLKzH06wtRMmp6thONCTIR8JGITlkw9hZ8nXSQdmFeQC5c6mikG9";
+        const apiUrl = `https://api.thedogapi.com/v1/images/search?limit=30&api_key=${apiKey}`;
+        const container = document.getElementById("dogContainer");
+
+        function fetchDogs() {
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    container.innerHTML = ""; // Mevcut kartları temizle
+                    data.forEach(dog => {
+                        const card = document.createElement("div");
+                        card.className = "card";
+
+                        const img = document.createElement("img");
+                        img.src = dog.url;
+                        img.alt = "Dog Image";
+
+                        const breedName = document.createElement("p");
+                        breedName.textContent = dog.breeds.length > 0 ? dog.breeds[0].name : "Unknown Breed";
+
+                        const button = document.createElement("button");
+                        button.textContent = "Get New Dog";
+                        button.onclick = () => fetchSingleDog(card);
+
+                        card.appendChild(img);
+                        card.appendChild(breedName);
+                        card.appendChild(button);
+                        container.appendChild(card);
+                    });
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        function fetchSingleDog(card) {
+            fetch(`https://api.thedogapi.com/v1/images/search?api_key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    const dog = data[0];
+                    card.querySelector("img").src = dog.url;
+                    card.querySelector("p").textContent = dog.breeds.length > 0 ? dog.breeds[0].name : "Unknown Breed";
+                })
+                .catch(error => console.error("Error fetching new dog:", error));
+        }
+
+        fetchDogs(); // Sayfa açıldığında 30 köpek getir
+    </script>
+</body>
+</html>
